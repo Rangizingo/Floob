@@ -87,20 +87,38 @@ class PetPersistence:
             print(f"Error loading pet state: {e}")
             return None
 
-    def load_or_create(self, name: str = "Blobby") -> Pet:
+    def load_or_create(self, name: str = "Blobby", creature_type: str = "kibble") -> Pet:
         """
         Load existing pet or create a new one.
 
         Args:
             name: Name for new pet if creating.
+            creature_type: Type of creature for new pet.
 
         Returns:
             Pet instance, either loaded or newly created.
         """
         pet = self.load()
         if pet is None:
-            pet = Pet(name=name)
+            pet = Pet(name=name, creature_type=creature_type)
         return pet
+
+    def has_creature_type(self) -> bool:
+        """
+        Check if saved pet has a creature_type field.
+
+        Returns:
+            True if creature_type exists in save, False otherwise.
+        """
+        if not self.save_path.exists():
+            return False
+
+        try:
+            with open(self.save_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            return "creature_type" in data
+        except (IOError, OSError, json.JSONDecodeError):
+            return False
 
     def delete_save(self) -> bool:
         """
