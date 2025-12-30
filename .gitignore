@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.pyo
+data/pet_state.json
+.venv/
+.env
