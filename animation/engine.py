@@ -676,6 +676,42 @@ class AnimationEngine:
             on_complete=queued.on_complete,
         )
 
+    def set_state(self, state: Any, blend_time: float = 0.3) -> None:
+        """
+        Set the animation state, playing appropriate animations.
+
+        This method looks up the animation configuration for the given state
+        and plays the associated base animations with blending.
+
+        Args:
+            state: The AnimationState enum value to switch to
+            blend_time: Seconds to blend from current state (default 0.3)
+        """
+        # Import here to avoid circular dependency
+        from animation.states import STATE_CONFIGS, AnimationState
+
+        # Handle if state is already an AnimationState or convert from value
+        if not isinstance(state, AnimationState):
+            try:
+                state = AnimationState(state)
+            except (ValueError, TypeError):
+                # Default to IDLE if invalid state
+                state = AnimationState.IDLE
+
+        # Get the state configuration
+        config = STATE_CONFIGS.get(state)
+        if config is None:
+            # Fall back to IDLE if state not found
+            config = STATE_CONFIGS.get(AnimationState.IDLE)
+
+        if config and config.base_animations:
+            # Play the first base animation for this state
+            self.play(
+                config.base_animations[0],
+                layer=0,
+                blend_time=blend_time,
+            )
+
 
 # ============================================================================
 # ANIMATION BUILDER UTILITIES
