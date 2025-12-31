@@ -87,7 +87,7 @@ class PetPersistence:
             print(f"Error loading pet state: {e}")
             return None
 
-    def load_or_create(self, name: str = "Blobby", creature_type: str = "kibble") -> Pet:
+    def load_or_create(self, name: str = "Fennix", creature_type: str = "fennix") -> Pet:
         """
         Load existing pet or create a new one.
 

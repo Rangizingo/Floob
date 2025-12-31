@@ -239,7 +239,7 @@ class PetMenu:
     """
     Right-click context menu for pet interactions.
 
-    Provides feed, play, sleep, customize, stats, auto-care toggle, and quit options.
+    Provides feed, play, sleep, customize, change floob, stats, auto-care toggle, and quit options.
     """
 
     def __init__(
@@ -250,6 +250,7 @@ class PetMenu:
         on_play: Optional[Callable[[], None]] = None,
         on_sleep: Optional[Callable[[], None]] = None,
         on_customize: Optional[Callable[[PetCustomization], None]] = None,
+        on_change_floob: Optional[Callable[[], None]] = None,
         on_auto_care_toggle: Optional[Callable[[bool], None]] = None,
         on_quit: Optional[Callable[[], None]] = None
     ) -> None:
@@ -263,6 +264,7 @@ class PetMenu:
             on_play: Callback when Play is selected.
             on_sleep: Callback when Sleep is selected.
             on_customize: Callback when customization is saved.
+            on_change_floob: Callback when Change Floob is selected.
             on_auto_care_toggle: Callback when auto-care is toggled (receives new state).
             on_quit: Callback when Quit is selected.
         """
@@ -272,6 +274,7 @@ class PetMenu:
         self.on_play = on_play
         self.on_sleep = on_sleep
         self.on_customize = on_customize
+        self.on_change_floob = on_change_floob
         self.on_auto_care_toggle = on_auto_care_toggle
         self.on_quit = on_quit
 
@@ -308,6 +311,12 @@ class PetMenu:
         self.menu.add_command(
             label="Customize",
             command=self._handle_customize
+        )
+
+        # Change Floob option
+        self.menu.add_command(
+            label="Change Floob",
+            command=self._handle_change_floob
         )
 
         # Stats option
@@ -409,6 +418,11 @@ class PetMenu:
         self.pet.customization = customization
         if self.on_customize:
             self.on_customize(customization)
+
+    def _handle_change_floob(self) -> None:
+        """Handle Change Floob menu selection."""
+        if self.on_change_floob:
+            self.on_change_floob()
 
     def _handle_quit(self) -> None:
         """Handle Quit menu selection."""

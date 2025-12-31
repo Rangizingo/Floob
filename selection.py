@@ -1,7 +1,9 @@
 """
 Creature selection screen for the Desktop Virtual Pet.
 
-Displays a grid of 15 creatures for the user to choose from.
+Displays a grid of 10 creatures for the user to choose from.
+Features properly-shaped animal creatures with distinct silhouettes.
+All creatures use a soft PASTEL color palette.
 """
 
 import tkinter as tk
@@ -10,118 +12,93 @@ from typing import Callable, Optional
 import math
 
 
-# Creature data: (name, description, primary_color, secondary_color)
+# Creature data: 10 creature designs with soft PASTEL color palette
 CREATURES = {
-    "sparkit": {
-        "name": "Sparkit",
+    "fennix": {
+        "name": "Fennix",
+        "description": "Fiery fennec fox",
+        "type": "Fire",
+        "primary": "#FFB5A7",      # Soft coral
+        "secondary": "#FFCDB2",    # Pale orange (flame)
+        "accent": "#FFF1E6",       # Cream belly
+    },
+    "hopplet": {
+        "name": "Hopplet",
+        "description": "Chubby bunny",
+        "type": "Normal",
+        "primary": "#FFF5EE",      # Soft white
+        "secondary": "#FFCAD4",    # Light pink inner ears
+        "accent": "#FFFFFF",       # White belly
+    },
+    "drizzpup": {
+        "name": "Drizzpup",
+        "description": "Water puppy",
+        "type": "Water",
+        "primary": "#A2D2FF",      # Soft sky blue
+        "secondary": "#BDE0FE",    # Pale blue fins
+        "accent": "#E2EAFC",       # Light lavender blue belly
+    },
+    "owlette": {
+        "name": "Owlette",
+        "description": "Baby owl",
+        "type": "Flying",
+        "primary": "#E4C9B4",      # Soft tan
+        "secondary": "#F2E2D2",    # Cream feathers
+        "accent": "#FFF8F0",       # Off-white belly
+    },
+    "kitsumi": {
+        "name": "Kitsumi",
+        "description": "Spirit fox",
+        "type": "Mystic",
+        "primary": "#CDB4DB",      # Soft lavender
+        "secondary": "#E2C2FF",    # Light purple
+        "accent": "#F3E8FF",       # Pale lavender belly
+    },
+    "pengi": {
+        "name": "Pengi",
+        "description": "Tiny penguin",
+        "type": "Ice",
+        "primary": "#89C2D9",      # Soft blue-gray
+        "secondary": "#FFFFFF",    # White belly
+        "accent": "#FFCB77",       # Soft orange beak/feet
+    },
+    "leafkit": {
+        "name": "Leafkit",
+        "description": "Grass kitten",
+        "type": "Grass",
+        "primary": "#B5E48C",      # Soft green
+        "secondary": "#95D5B2",    # Sage green stripes
+        "accent": "#FFB5C5",       # Soft pink flower
+    },
+    "sparkrat": {
+        "name": "Sparkrat",
         "description": "Electric mouse",
-        "primary": "#FFD700",  # Yellow
-        "secondary": "#000000",  # Black tips
-        "accent": "#FF69B4",  # Pink cheeks
+        "type": "Electric",
+        "primary": "#FFF3B0",      # Soft yellow
+        "secondary": "#FFFBEB",    # Cream belly
+        "accent": "#FFADAD",       # Soft pink cheeks
     },
-    "fumewl": {
-        "name": "Fumewl",
-        "description": "Fire owl",
-        "primary": "#FF6B35",  # Orange-red
-        "secondary": "#FF4500",  # Flame orange
-        "accent": "#FFD700",  # Ember eyes
+    "drakeling": {
+        "name": "Drakeling",
+        "description": "Baby dragon",
+        "type": "Dragon",
+        "primary": "#99E2B4",      # Soft teal-green
+        "secondary": "#88D4AB",    # Mint scales
+        "accent": "#B5E48C",       # Soft green wings
     },
-    "drophin": {
-        "name": "Drophin",
-        "description": "Water sprite",
-        "primary": "#87CEEB",  # Light blue
-        "secondary": "#4169E1",  # Royal blue
-        "accent": "#00CED1",  # Cyan gem
-    },
-    "clovekit": {
-        "name": "Clovekit",
-        "description": "Lucky cat",
-        "primary": "#98FB98",  # Mint green
-        "secondary": "#228B22",  # Forest green
-        "accent": "#FFD700",  # Gold eyes
-    },
-    "emberpup": {
-        "name": "Emberpup",
-        "description": "Fire dog",
-        "primary": "#FF7F50",  # Coral orange
-        "secondary": "#FF4500",  # Red-orange
-        "accent": "#2F2F2F",  # Coal nose
-    },
-    "lunavee": {
-        "name": "Lunavee",
-        "description": "Moon rabbit",
-        "primary": "#B0C4DE",  # Light steel blue
-        "secondary": "#E6E6FA",  # Lavender
-        "accent": "#FFD700",  # Star gold
-    },
-    "puffox": {
-        "name": "Puffox",
-        "description": "Cloud fox",
-        "primary": "#FFB6C1",  # Light pink
-        "secondary": "#87CEEB",  # Light blue
-        "accent": "#DDA0DD",  # Plum swirls
-    },
-    "gemling": {
-        "name": "Gemling",
-        "description": "Crystal creature",
-        "primary": "#E6E6FA",  # Lavender
-        "secondary": "#9370DB",  # Medium purple
-        "accent": "#FF69B4",  # Pink gem
-    },
-    "thornpaw": {
-        "name": "Thornpaw",
-        "description": "Grass cat",
-        "primary": "#90EE90",  # Light green
-        "secondary": "#228B22",  # Forest green
-        "accent": "#FF69B4",  # Flower pink
-    },
-    "flickett": {
-        "name": "Flickett",
-        "description": "Electric bunny",
-        "primary": "#FFFF00",  # Bright yellow
-        "secondary": "#FFD700",  # Gold
-        "accent": "#FF6B6B",  # Spark red
-    },
-    "soochi": {
-        "name": "Soochi",
-        "description": "Psychic fox",
-        "primary": "#9370DB",  # Medium purple
-        "secondary": "#4B0082",  # Indigo
-        "accent": "#FF00FF",  # Magenta
-    },
-    "kibble": {
-        "name": "Kibble",
-        "description": "Normal type cutie",
-        "primary": "#F5DEB3",  # Wheat/cream
-        "secondary": "#DEB887",  # Burlywood
-        "accent": "#FF69B4",  # Pink nose
-    },
-    "wispurr": {
-        "name": "Wispurr",
+    "shimi": {
+        "name": "Shimi",
         "description": "Ghost cat",
-        "primary": "#9370DB",  # Purple
-        "secondary": "#E6E6FA",  # Lavender
-        "accent": "#FFFFFF",  # White glow
-    },
-    "tidekit": {
-        "name": "Tidekit",
-        "description": "Water kitten",
-        "primary": "#ADD8E6",  # Light blue
-        "secondary": "#4169E1",  # Royal blue
-        "accent": "#00CED1",  # Cyan bubbles
-    },
-    "charrix": {
-        "name": "Charrix",
-        "description": "Fire fox",
-        "primary": "#FF6347",  # Tomato red
-        "secondary": "#FF4500",  # Orange-red
-        "accent": "#FFD700",  # Ember gold
+        "type": "Ghost",
+        "primary": "#D4C1EC",      # Soft purple
+        "secondary": "#E8DAEF",    # Pale lavender
+        "accent": "#FFFFFF",       # White glow
     },
 }
 
 
-def darken_color(hex_color: str, factor: float = 0.7) -> str:
-    """Darken a hex color by a factor."""
+def darken_color(hex_color: str, factor: float = 0.85) -> str:
+    """Darken a hex color by a factor (higher = lighter)."""
     hex_color = hex_color.lstrip('#')
     r = int(hex_color[0:2], 16)
     g = int(hex_color[2:4], 16)
@@ -173,1346 +150,573 @@ class CreaturePreview:
         self.center_y = center_y
         self.size = size
         self.bounce_offset = 0.0
-        self.data = CREATURES.get(creature_type, CREATURES["kibble"])
+        self.data = CREATURES.get(creature_type, CREATURES["fennix"])
 
     def draw(self, bounce: float = 0) -> None:
         """Draw the creature preview with optional bounce offset."""
         self.bounce_offset = bounce
         method_name = f"_draw_{self.creature_type}"
-        draw_method = getattr(self, method_name, self._draw_default)
+        draw_method = getattr(self, method_name, self._draw_fennix)
         draw_method()
 
-    def _draw_default(self) -> None:
-        """Default drawing method - simple blob."""
+    def _draw_fennix(self) -> None:
+        """Draw Fennix - Fire Fennec Fox with HUGE ears (properly centered)."""
         cx, cy = self.center_x, self.center_y - self.bounce_offset
         s = self.size
-        color = self.data["primary"]
+        body = self.data["primary"]
+        flame = self.data["secondary"]
+        belly = self.data["accent"]
+        outline = darken_color(body)
 
-        # Body
-        self.canvas.create_oval(
-            cx - s, cy - s * 0.9,
-            cx + s, cy + s,
-            fill=color,
-            outline=darken_color(color),
-            width=2
-        )
-
-        # Eyes
-        eye_y = cy - s * 0.15
-        for offset in [-s * 0.35, s * 0.35]:
-            self.canvas.create_oval(
-                cx + offset - 4, eye_y - 5,
-                cx + offset + 4, eye_y + 5,
-                fill="white",
-                outline="#2F2F2F"
-            )
-            self.canvas.create_oval(
-                cx + offset - 2, eye_y - 2,
-                cx + offset + 2, eye_y + 2,
-                fill="#2F2F2F",
-                outline=""
-            )
-
-    def _draw_sparkit(self) -> None:
-        """Draw Sparkit - Electric mouse."""
-        cx, cy = self.center_x, self.center_y - self.bounce_offset
-        s = self.size
-        color = self.data["primary"]
-
-        # Body
-        self.canvas.create_oval(
-            cx - s, cy - s * 0.8,
-            cx + s, cy + s,
-            fill=color,
-            outline=darken_color(color),
-            width=2
-        )
-
-        # Ears (round with black tips)
-        for side in [-1, 1]:
-            ear_x = cx + side * s * 0.7
-            ear_y = cy - s * 0.7
-            # Outer ear
-            self.canvas.create_oval(
-                ear_x - s * 0.4, ear_y - s * 0.5,
-                ear_x + s * 0.4, ear_y + s * 0.3,
-                fill=color,
-                outline=darken_color(color)
-            )
-            # Black tip
-            self.canvas.create_oval(
-                ear_x - s * 0.25, ear_y - s * 0.5,
-                ear_x + s * 0.25, ear_y - s * 0.1,
-                fill="#000000",
-                outline=""
-            )
-
-        # Rosy cheeks
-        for side in [-1, 1]:
-            self.canvas.create_oval(
-                cx + side * s * 0.5 - 5, cy + s * 0.1 - 4,
-                cx + side * s * 0.5 + 5, cy + s * 0.1 + 4,
-                fill="#FF69B4",
-                outline=""
-            )
-
-        # Eyes
-        eye_y = cy - s * 0.1
-        for offset in [-s * 0.3, s * 0.3]:
-            self.canvas.create_oval(
-                cx + offset - 3, eye_y - 3,
-                cx + offset + 3, eye_y + 3,
-                fill="#2F2F2F",
-                outline=""
-            )
-            self.canvas.create_oval(
-                cx + offset - 1, eye_y - 2,
-                cx + offset + 1, eye_y,
-                fill="white",
-                outline=""
-            )
-
-        # Nose
-        self.canvas.create_oval(
-            cx - 2, cy + s * 0.2 - 2,
-            cx + 2, cy + s * 0.2 + 2,
-            fill="#FF6B6B",
-            outline=""
-        )
-
-        # Lightning bolt tail
-        tail_x = cx + s * 0.9
-        tail_y = cy
-        points = [
-            tail_x, tail_y - 3,
-            tail_x + 8, tail_y - 8,
-            tail_x + 5, tail_y,
-            tail_x + 15, tail_y + 5,
-            tail_x + 3, tail_y + 2,
-            tail_x + 6, tail_y + 8,
-            tail_x, tail_y + 3,
+        # Tail curled around (behind body) - positioned to connect to body
+        tail_points = [
+            cx + s * 0.4, cy + s * 0.2,
+            cx + s * 0.75, cy + s * 0.0,
+            cx + s * 0.7, cy - s * 0.25,
+            cx + s * 0.5, cy - s * 0.1,
         ]
-        self.canvas.create_polygon(
-            points,
-            fill=color,
-            outline=darken_color(color)
-        )
+        self.canvas.create_polygon(tail_points, fill=body, outline=outline, smooth=True, width=1)
+        # Flame tip on tail
+        self.canvas.create_oval(cx + s * 0.55, cy - s * 0.35, cx + s * 0.8, cy - s * 0.1, fill=flame, outline="")
 
-    def _draw_fumewl(self) -> None:
-        """Draw Fumewl - Fire owl."""
+        # Body - horizontal oval (sitting fox body)
+        self.canvas.create_oval(cx - s * 0.5, cy - s * 0.05, cx + s * 0.45, cy + s * 0.5, fill=body, outline=outline, width=1)
+
+        # Belly - centered on body
+        self.canvas.create_oval(cx - s * 0.3, cy + s * 0.05, cx + s * 0.25, cy + s * 0.4, fill=belly, outline="")
+
+        # Head - centered above body
+        head_cx = cx - s * 0.02
+        head_cy = cy - s * 0.2
+        self.canvas.create_oval(head_cx - s * 0.35, head_cy - s * 0.3, head_cx + s * 0.35, head_cy + s * 0.25, fill=body, outline=outline, width=1)
+
+        # HUGE fennec ears (triangles) - properly centered on head
+        ear_base_y = head_cy - s * 0.15
+        ear_tip_y = head_cy - s * 0.9
+
+        # Left ear - centered properly
+        ear_l = [head_cx - s * 0.25, ear_base_y, head_cx - s * 0.35, ear_tip_y, head_cx - s * 0.05, ear_base_y]
+        self.canvas.create_polygon(ear_l, fill=body, outline=outline, width=1)
+        inner_l = [head_cx - s * 0.22, ear_base_y, head_cx - s * 0.3, ear_tip_y + s * 0.15, head_cx - s * 0.1, ear_base_y]
+        self.canvas.create_polygon(inner_l, fill=flame, outline="")
+
+        # Right ear - centered properly
+        ear_r = [head_cx + s * 0.05, ear_base_y, head_cx + s * 0.35, ear_tip_y, head_cx + s * 0.25, ear_base_y]
+        self.canvas.create_polygon(ear_r, fill=body, outline=outline, width=1)
+        inner_r = [head_cx + s * 0.1, ear_base_y, head_cx + s * 0.3, ear_tip_y + s * 0.15, head_cx + s * 0.22, ear_base_y]
+        self.canvas.create_polygon(inner_r, fill=flame, outline="")
+
+        # Eyes - centered on head
+        eye_y = head_cy
+        for offset in [-s * 0.12, s * 0.12]:
+            self.canvas.create_oval(head_cx + offset - 3, eye_y - 3, head_cx + offset + 3, eye_y + 3, fill="#2F2F2F", outline="")
+            self.canvas.create_oval(head_cx + offset - 1, eye_y - 2, head_cx + offset + 1, eye_y, fill="white", outline="")
+
+        # Small black nose - centered below eyes
+        nose_y = head_cy + s * 0.12
+        self.canvas.create_oval(head_cx - 2, nose_y - 2, head_cx + 2, nose_y + 2, fill="#2F2F2F", outline="")
+
+        # Front paws - positioned at bottom of body
+        paw_y = cy + s * 0.38
+        self.canvas.create_oval(cx - s * 0.3, paw_y, cx - s * 0.1, paw_y + s * 0.15, fill=body, outline=outline)
+        self.canvas.create_oval(cx + s * 0.05, paw_y, cx + s * 0.25, paw_y + s * 0.15, fill=body, outline=outline)
+
+    def _draw_hopplet(self) -> None:
+        """Draw Hopplet - Chubby bunny with floppy ears (properly aligned)."""
         cx, cy = self.center_x, self.center_y - self.bounce_offset
         s = self.size
-        color = self.data["primary"]
+        body = self.data["primary"]
+        inner = self.data["secondary"]
+        belly_c = self.data["accent"]
+        outline = darken_color(body)
 
-        # Body (oval)
-        self.canvas.create_oval(
-            cx - s * 0.85, cy - s * 0.9,
-            cx + s * 0.85, cy + s,
-            fill=color,
-            outline=darken_color(color),
-            width=2
-        )
+        # Cotton puff tail (behind) - positioned correctly
+        self.canvas.create_oval(cx + s * 0.35, cy + s * 0.1, cx + s * 0.6, cy + s * 0.35, fill=belly_c, outline=outline)
 
-        # Ear tufts (flame-like)
-        for side in [-1, 1]:
-            tuft_x = cx + side * s * 0.5
-            tuft_y = cy - s * 0.8
-            points = [
-                tuft_x - side * 3, tuft_y + 8,
-                tuft_x, tuft_y - 8,
-                tuft_x + side * 5, tuft_y + 5,
-            ]
-            self.canvas.create_polygon(
-                points,
-                fill=self.data["secondary"],
-                outline=""
-            )
+        # Round chubby body
+        self.canvas.create_oval(cx - s * 0.5, cy - s * 0.25, cx + s * 0.5, cy + s * 0.55, fill=body, outline=outline, width=1)
 
-        # Big round eyes
-        eye_y = cy - s * 0.15
-        for offset in [-s * 0.3, s * 0.3]:
+        # Belly - centered on body
+        self.canvas.create_oval(cx - s * 0.32, cy - s * 0.05, cx + s * 0.32, cy + s * 0.4, fill=belly_c, outline="")
+
+        # Head - centered above body
+        head_cy = cy - s * 0.3
+        self.canvas.create_oval(cx - s * 0.38, head_cy - s * 0.3, cx + s * 0.38, head_cy + s * 0.3, fill=body, outline=outline, width=1)
+
+        # Long floppy ears (hanging down) - properly attached to head
+        ear_top_y = head_cy - s * 0.2
+        ear_bottom_y = cy + s * 0.25
+
+        # Left ear
+        self.canvas.create_oval(cx - s * 0.55, ear_top_y, cx - s * 0.25, ear_bottom_y, fill=body, outline=outline)
+        self.canvas.create_oval(cx - s * 0.5, ear_top_y + s * 0.1, cx - s * 0.3, ear_bottom_y - s * 0.1, fill=inner, outline="")
+
+        # Right ear
+        self.canvas.create_oval(cx + s * 0.25, ear_top_y, cx + s * 0.55, ear_bottom_y, fill=body, outline=outline)
+        self.canvas.create_oval(cx + s * 0.3, ear_top_y + s * 0.1, cx + s * 0.5, ear_bottom_y - s * 0.1, fill=inner, outline="")
+
+        # Big oval feet in front - positioned at bottom
+        feet_y = cy + s * 0.35
+        self.canvas.create_oval(cx - s * 0.42, feet_y, cx - s * 0.08, feet_y + s * 0.22, fill=body, outline=outline)
+        self.canvas.create_oval(cx + s * 0.08, feet_y, cx + s * 0.42, feet_y + s * 0.22, fill=body, outline=outline)
+
+        # Eyes - centered on head
+        eye_y = head_cy - s * 0.05
+        for offset in [-s * 0.15, s * 0.15]:
+            self.canvas.create_oval(cx + offset - 3, eye_y - 4, cx + offset + 3, eye_y + 4, fill="#2F2F2F", outline="")
+            self.canvas.create_oval(cx + offset - 1, eye_y - 2, cx + offset + 1, eye_y, fill="white", outline="")
+
+        # Twitchy nose (pink oval) - centered on face
+        nose_y = head_cy + s * 0.1
+        self.canvas.create_oval(cx - 3, nose_y - 3, cx + 3, nose_y + 3, fill=inner, outline="")
+
+    def _draw_drizzpup(self) -> None:
+        """Draw Drizzpup - Water puppy with fin ears (properly aligned)."""
+        cx, cy = self.center_x, self.center_y - self.bounce_offset
+        s = self.size
+        body = self.data["primary"]
+        fins = self.data["secondary"]
+        belly = self.data["accent"]
+        outline = darken_color(body)
+
+        # Water droplet tail (behind) - properly attached
+        tail_pts = [cx + s * 0.4, cy + s * 0.15, cx + s * 0.7, cy - s * 0.1, cx + s * 0.65, cy + s * 0.3]
+        self.canvas.create_polygon(tail_pts, fill=body, outline=outline, smooth=True)
+        self.canvas.create_oval(cx + s * 0.5, cy - s * 0.2, cx + s * 0.75, cy + s * 0.0, fill=fins, outline="")
+
+        # Body - sitting puppy
+        self.canvas.create_oval(cx - s * 0.48, cy - s * 0.12, cx + s * 0.48, cy + s * 0.5, fill=body, outline=outline, width=1)
+
+        # Belly - centered
+        self.canvas.create_oval(cx - s * 0.28, cy + s * 0.0, cx + s * 0.28, cy + s * 0.38, fill=belly, outline="")
+
+        # Head - centered above body
+        head_cy = cy - s * 0.25
+        self.canvas.create_oval(cx - s * 0.38, head_cy - s * 0.28, cx + s * 0.38, head_cy + s * 0.28, fill=body, outline=outline, width=1)
+
+        # Floppy fin-like ears - properly positioned on head sides
+        fin_l = [cx - s * 0.32, head_cy - s * 0.1, cx - s * 0.65, head_cy - s * 0.3, cx - s * 0.6, head_cy + s * 0.1, cx - s * 0.32, head_cy + s * 0.15]
+        self.canvas.create_polygon(fin_l, fill=fins, outline=darken_color(fins), smooth=True)
+
+        fin_r = [cx + s * 0.32, head_cy - s * 0.1, cx + s * 0.65, head_cy - s * 0.3, cx + s * 0.6, head_cy + s * 0.1, cx + s * 0.32, head_cy + s * 0.15]
+        self.canvas.create_polygon(fin_r, fill=fins, outline=darken_color(fins), smooth=True)
+
+        # Happy eyes - centered on head
+        eye_y = head_cy - s * 0.05
+        for offset in [-s * 0.15, s * 0.15]:
+            self.canvas.create_oval(cx + offset - 4, eye_y - 4, cx + offset + 4, eye_y + 4, fill="white", outline="#2F2F2F")
+            self.canvas.create_oval(cx + offset - 2, eye_y - 2, cx + offset + 2, eye_y + 2, fill="#2F2F2F", outline="")
+
+        # Nose - centered below eyes
+        nose_y = head_cy + s * 0.12
+        self.canvas.create_oval(cx - 3, nose_y - 2, cx + 3, nose_y + 2, fill="#2F2F2F", outline="")
+
+        # Tongue out - below nose
+        tongue_y = head_cy + s * 0.2
+        self.canvas.create_oval(cx - 3, tongue_y, cx + 3, tongue_y + s * 0.1, fill="#FFADAD", outline="")
+
+        # Front paws - positioned at bottom
+        paw_y = cy + s * 0.35
+        self.canvas.create_oval(cx - s * 0.32, paw_y, cx - s * 0.12, paw_y + s * 0.15, fill=body, outline=outline)
+        self.canvas.create_oval(cx + s * 0.12, paw_y, cx + s * 0.32, paw_y + s * 0.15, fill=body, outline=outline)
+
+    def _draw_owlette(self) -> None:
+        """Draw Owlette - Baby owl with huge round eyes (properly centered)."""
+        cx, cy = self.center_x, self.center_y - self.bounce_offset
+        s = self.size
+        body = self.data["primary"]
+        feathers = self.data["secondary"]
+        belly = self.data["accent"]
+        outline = darken_color(body)
+        beak_color = "#FFCB77"  # Soft yellow beak
+
+        # Wing stubs (behind body) - positioned at body sides
+        self.canvas.create_oval(cx - s * 0.68, cy - s * 0.05, cx - s * 0.32, cy + s * 0.35, fill=feathers, outline=outline)
+        self.canvas.create_oval(cx + s * 0.32, cy - s * 0.05, cx + s * 0.68, cy + s * 0.35, fill=feathers, outline=outline)
+
+        # Round owl body - centered
+        self.canvas.create_oval(cx - s * 0.42, cy - s * 0.35, cx + s * 0.42, cy + s * 0.52, fill=body, outline=outline, width=1)
+
+        # Belly/chest feathers - centered on body
+        self.canvas.create_oval(cx - s * 0.28, cy - s * 0.12, cx + s * 0.28, cy + s * 0.38, fill=belly, outline="")
+
+        # Small triangular ear tufts - centered on top of head
+        tuft_base_y = cy - s * 0.28
+        tuft_tip_y = cy - s * 0.58
+
+        tuft_l = [cx - s * 0.22, tuft_base_y, cx - s * 0.32, tuft_tip_y, cx - s * 0.08, tuft_base_y]
+        self.canvas.create_polygon(tuft_l, fill=body, outline=outline)
+
+        tuft_r = [cx + s * 0.08, tuft_base_y, cx + s * 0.32, tuft_tip_y, cx + s * 0.22, tuft_base_y]
+        self.canvas.create_polygon(tuft_r, fill=body, outline=outline)
+
+        # HUGE circular eyes - centered on face
+        eye_y = cy - s * 0.1
+        for offset in [-s * 0.18, s * 0.18]:
+            # Eye disk (feather pattern around eye)
+            self.canvas.create_oval(cx + offset - 8, eye_y - 8, cx + offset + 8, eye_y + 8, fill=feathers, outline=outline)
             # Eye white
-            self.canvas.create_oval(
-                cx + offset - 7, eye_y - 8,
-                cx + offset + 7, eye_y + 8,
-                fill="white",
-                outline="#2F2F2F"
-            )
-            # Ember iris
-            self.canvas.create_oval(
-                cx + offset - 4, eye_y - 4,
-                cx + offset + 4, eye_y + 4,
-                fill="#FF8C00",
-                outline=""
-            )
+            self.canvas.create_oval(cx + offset - 6, eye_y - 6, cx + offset + 6, eye_y + 6, fill="white", outline="#2F2F2F")
             # Pupil
-            self.canvas.create_oval(
-                cx + offset - 2, eye_y - 2,
-                cx + offset + 2, eye_y + 2,
-                fill="#2F2F2F",
-                outline=""
-            )
-
-        # Small beak
-        self.canvas.create_polygon(
-            cx, cy + s * 0.15,
-            cx - 4, cy + s * 0.3,
-            cx + 4, cy + s * 0.3,
-            fill="#FFD700",
-            outline=darken_color("#FFD700")
-        )
-
-        # Wing stubs
-        for side in [-1, 1]:
-            self.canvas.create_arc(
-                cx + side * s * 0.5, cy - s * 0.1,
-                cx + side * s * 1.1, cy + s * 0.6,
-                start=90 if side == 1 else 0,
-                extent=90,
-                style=tk.CHORD,
-                fill=darken_color(color),
-                outline=""
-            )
-
-    def _draw_drophin(self) -> None:
-        """Draw Drophin - Water sprite."""
-        cx, cy = self.center_x, self.center_y - self.bounce_offset
-        s = self.size
-        color = self.data["primary"]
-
-        # Teardrop body
-        points = [
-            cx, cy - s,
-            cx + s * 0.8, cy + s * 0.3,
-            cx + s * 0.5, cy + s,
-            cx, cy + s * 0.8,
-            cx - s * 0.5, cy + s,
-            cx - s * 0.8, cy + s * 0.3,
-        ]
-        self.canvas.create_polygon(
-            points,
-            fill=color,
-            outline=self.data["secondary"],
-            width=2,
-            smooth=True
-        )
-
-        # Forehead gem
-        self.canvas.create_oval(
-            cx - 4, cy - s * 0.6 - 4,
-            cx + 4, cy - s * 0.6 + 4,
-            fill=self.data["accent"],
-            outline=darken_color(self.data["accent"])
-        )
-
-        # Fin ears
-        for side in [-1, 1]:
-            self.canvas.create_polygon(
-                cx + side * s * 0.4, cy - s * 0.3,
-                cx + side * s * 0.7, cy - s * 0.6,
-                cx + side * s * 0.8, cy - s * 0.2,
-                fill=color,
-                outline=self.data["secondary"]
-            )
-
-        # Eyes
-        eye_y = cy - s * 0.15
-        for offset in [-s * 0.25, s * 0.25]:
-            self.canvas.create_oval(
-                cx + offset - 4, eye_y - 4,
-                cx + offset + 4, eye_y + 4,
-                fill="white",
-                outline="#2F2F2F"
-            )
-            self.canvas.create_oval(
-                cx + offset - 2, eye_y - 1,
-                cx + offset + 2, eye_y + 3,
-                fill="#2F2F2F",
-                outline=""
-            )
-
-        # Dolphin snout
-        self.canvas.create_arc(
-            cx - s * 0.3, cy + s * 0.1,
-            cx + s * 0.3, cy + s * 0.5,
-            start=200, extent=140,
-            style=tk.ARC,
-            outline="#2F2F2F",
-            width=2
-        )
-
-    def _draw_clovekit(self) -> None:
-        """Draw Clovekit - Lucky cat."""
-        cx, cy = self.center_x, self.center_y - self.bounce_offset
-        s = self.size
-        color = self.data["primary"]
-
-        # Round body
-        self.canvas.create_oval(
-            cx - s, cy - s * 0.8,
-            cx + s, cy + s,
-            fill=color,
-            outline=darken_color(color),
-            width=2
-        )
-
-        # Cat ears (one up, one flopped)
-        # Left ear (up)
-        points_left = [
-            cx - s * 0.5, cy - s * 0.5,
-            cx - s * 0.3, cy - s * 1.1,
-            cx - s * 0.1, cy - s * 0.5,
-        ]
-        self.canvas.create_polygon(points_left, fill=color, outline=darken_color(color))
-        # Inner ear
-        self.canvas.create_polygon(
-            cx - s * 0.45, cy - s * 0.5,
-            cx - s * 0.3, cy - s * 0.9,
-            cx - s * 0.15, cy - s * 0.5,
-            fill="#FFB6C1", outline=""
-        )
-
-        # Right ear (flopped)
-        points_right = [
-            cx + s * 0.1, cy - s * 0.5,
-            cx + s * 0.5, cy - s * 0.7,
-            cx + s * 0.6, cy - s * 0.3,
-        ]
-        self.canvas.create_polygon(points_right, fill=color, outline=darken_color(color))
-
-        # Big golden eyes
-        eye_y = cy - s * 0.1
-        for offset in [-s * 0.3, s * 0.3]:
-            self.canvas.create_oval(
-                cx + offset - 5, eye_y - 6,
-                cx + offset + 5, eye_y + 6,
-                fill=self.data["accent"],
-                outline="#2F2F2F"
-            )
-            self.canvas.create_oval(
-                cx + offset - 2, eye_y - 2,
-                cx + offset + 2, eye_y + 2,
-                fill="#2F2F2F",
-                outline=""
-            )
-
-        # Small pink nose
-        self.canvas.create_polygon(
-            cx, cy + s * 0.15,
-            cx - 3, cy + s * 0.25,
-            cx + 3, cy + s * 0.25,
-            fill="#FFB6C1",
-            outline=""
-        )
-
-        # Whiskers
-        for side in [-1, 1]:
-            for dy in [-3, 3]:
-                self.canvas.create_line(
-                    cx + side * s * 0.2, cy + s * 0.25 + dy,
-                    cx + side * s * 0.7, cy + s * 0.2 + dy * 1.5,
-                    fill="#333333",
-                    width=1
-                )
-
-        # Four-leaf clover tail
-        tail_x = cx + s
-        tail_y = cy + s * 0.2
-        for angle in [0, 90, 180, 270]:
-            rad = math.radians(angle)
-            leaf_cx = tail_x + math.cos(rad) * 6
-            leaf_cy = tail_y + math.sin(rad) * 6
-            self.canvas.create_oval(
-                leaf_cx - 4, leaf_cy - 4,
-                leaf_cx + 4, leaf_cy + 4,
-                fill=self.data["secondary"],
-                outline=""
-            )
-
-    def _draw_emberpup(self) -> None:
-        """Draw Emberpup - Fire dog."""
-        cx, cy = self.center_x, self.center_y - self.bounce_offset
-        s = self.size
-        color = self.data["primary"]
-
-        # Round body
-        self.canvas.create_oval(
-            cx - s, cy - s * 0.85,
-            cx + s, cy + s,
-            fill=color,
-            outline=darken_color(color),
-            width=2
-        )
-
-        # Floppy dog ears with flame tips
-        for side in [-1, 1]:
-            # Ear base
-            self.canvas.create_oval(
-                cx + side * s * 0.5, cy - s * 0.7,
-                cx + side * s * 1.1, cy + s * 0.1,
-                fill=color,
-                outline=darken_color(color)
-            )
-            # Flame tip
-            tip_x = cx + side * s * 0.9
-            tip_y = cy - s * 0.6
-            self.canvas.create_polygon(
-                tip_x - 4, tip_y + 5,
-                tip_x, tip_y - 8,
-                tip_x + 4, tip_y + 5,
-                fill=self.data["secondary"],
-                outline=""
-            )
-
-        # Happy eyes (arcs)
-        eye_y = cy - s * 0.1
-        for offset in [-s * 0.3, s * 0.3]:
-            self.canvas.create_arc(
-                cx + offset - 5, eye_y - 5,
-                cx + offset + 5, eye_y + 5,
-                start=0, extent=180,
-                style=tk.ARC,
-                outline="#2F2F2F",
-                width=2
-            )
-
-        # Coal black nose
-        self.canvas.create_oval(
-            cx - 4, cy + s * 0.15 - 3,
-            cx + 4, cy + s * 0.15 + 3,
-            fill=self.data["accent"],
-            outline=""
-        )
-
-        # Happy panting mouth
-        self.canvas.create_arc(
-            cx - 8, cy + s * 0.2,
-            cx + 8, cy + s * 0.5,
-            start=200, extent=140,
-            style=tk.CHORD,
-            fill="#FF6B6B",
-            outline="#2F2F2F"
-        )
-
-        # Flame tail
-        tail_x = cx + s * 0.8
-        tail_y = cy + s * 0.3
-        points = [
-            tail_x, tail_y,
-            tail_x + 8, tail_y - 15,
-            tail_x + 12, tail_y - 5,
-            tail_x + 5, tail_y,
-        ]
-        self.canvas.create_polygon(
-            points,
-            fill=self.data["secondary"],
-            outline=darken_color(self.data["secondary"]),
-            smooth=True
-        )
-
-    def _draw_lunavee(self) -> None:
-        """Draw Lunavee - Moon rabbit."""
-        cx, cy = self.center_x, self.center_y - self.bounce_offset
-        s = self.size
-        color = self.data["primary"]
-
-        # Silvery blue body
-        self.canvas.create_oval(
-            cx - s, cy - s * 0.8,
-            cx + s, cy + s,
-            fill=color,
-            outline=darken_color(color),
-            width=2
-        )
-
-        # Long upright rabbit ears with star tips
-        for side in [-1, 1]:
-            ear_x = cx + side * s * 0.3
-            # Outer ear
-            self.canvas.create_oval(
-                ear_x - s * 0.2, cy - s * 1.5,
-                ear_x + s * 0.2, cy - s * 0.3,
-                fill=color,
-                outline=darken_color(color)
-            )
-            # Inner ear
-            self.canvas.create_oval(
-                ear_x - s * 0.1, cy - s * 1.3,
-                ear_x + s * 0.1, cy - s * 0.4,
-                fill=self.data["secondary"],
-                outline=""
-            )
-            # Star tip
-            star_y = cy - s * 1.5
-            self.canvas.create_text(
-                ear_x, star_y - 3,
-                text="*",
-                font=("Arial", 8, "bold"),
-                fill=self.data["accent"]
-            )
-
-        # Crescent moon on forehead
-        self.canvas.create_arc(
-            cx - 6, cy - s * 0.55,
-            cx + 6, cy - s * 0.25,
-            start=45, extent=180,
-            style=tk.ARC,
-            outline=self.data["accent"],
-            width=2
-        )
-
-        # Big sparkly eyes
-        eye_y = cy - s * 0.05
-        for offset in [-s * 0.3, s * 0.3]:
-            self.canvas.create_oval(
-                cx + offset - 5, eye_y - 6,
-                cx + offset + 5, eye_y + 6,
-                fill="#FFFFFF",
-                outline="#2F2F2F"
-            )
-            self.canvas.create_oval(
-                cx + offset - 3, eye_y - 3,
-                cx + offset + 3, eye_y + 3,
-                fill="#4169E1",
-                outline=""
-            )
-            # Sparkle
-            self.canvas.create_oval(
-                cx + offset - 1, eye_y - 4,
-                cx + offset + 1, eye_y - 2,
-                fill="white",
-                outline=""
-            )
-
-        # Small smile
-        self.canvas.create_arc(
-            cx - 5, cy + s * 0.2,
-            cx + 5, cy + s * 0.4,
-            start=200, extent=140,
-            style=tk.ARC,
-            outline="#2F2F2F",
-            width=1
-        )
-
-        # Fluffy cotton tail
-        tail_x = cx + s * 0.9
-        tail_y = cy + s * 0.4
-        self.canvas.create_oval(
-            tail_x - 6, tail_y - 6,
-            tail_x + 6, tail_y + 6,
-            fill=self.data["secondary"],
-            outline=""
-        )
-
-    def _draw_puffox(self) -> None:
-        """Draw Puffox - Cloud fox."""
-        cx, cy = self.center_x, self.center_y - self.bounce_offset
-        s = self.size
-        color = self.data["primary"]
-
-        # Fluffy cloud-shaped body (multiple overlapping ovals)
-        for dx, dy, sz in [(-s*0.3, 0, 0.9), (s*0.3, 0, 0.9), (0, -s*0.2, 0.85), (0, s*0.2, 0.85)]:
-            self.canvas.create_oval(
-                cx + dx - s * sz, cy + dy - s * sz * 0.8,
-                cx + dx + s * sz, cy + dy + s * sz * 0.8,
-                fill=color,
-                outline=""
-            )
-        # Main body overlay
-        self.canvas.create_oval(
-            cx - s * 0.8, cy - s * 0.7,
-            cx + s * 0.8, cy + s * 0.8,
-            fill=lighten_color(color, 0.3),
-            outline=darken_color(color)
-        )
-
-        # Pointy fox ears
-        for side in [-1, 1]:
-            points = [
-                cx + side * s * 0.4, cy - s * 0.5,
-                cx + side * s * 0.3, cy - s * 1.0,
-                cx + side * s * 0.7, cy - s * 0.4,
-            ]
-            self.canvas.create_polygon(
-                points,
-                fill=self.data["secondary"],
-                outline=darken_color(self.data["secondary"])
-            )
-
-        # Swirl patterns on cheeks
-        for side in [-1, 1]:
-            self.canvas.create_arc(
-                cx + side * s * 0.3, cy - s * 0.1,
-                cx + side * s * 0.6, cy + s * 0.2,
-                start=0, extent=270,
-                style=tk.ARC,
-                outline=self.data["accent"],
-                width=2
-            )
-
-        # Dreamy half-closed eyes
-        eye_y = cy - s * 0.1
-        for offset in [-s * 0.25, s * 0.25]:
-            self.canvas.create_arc(
-                cx + offset - 5, eye_y - 3,
-                cx + offset + 5, eye_y + 5,
-                start=0, extent=180,
-                style=tk.CHORD,
-                fill="#2F2F2F",
-                outline=""
-            )
+            self.canvas.create_oval(cx + offset - 3, eye_y - 3, cx + offset + 3, eye_y + 3, fill="#2F2F2F", outline="")
             # Highlight
-            self.canvas.create_arc(
-                cx + offset - 5, eye_y - 1,
-                cx + offset + 5, eye_y + 5,
-                start=0, extent=180,
-                style=tk.ARC,
-                outline="white",
-                width=1
-            )
+            self.canvas.create_oval(cx + offset - 1, eye_y - 4, cx + offset + 2, eye_y - 1, fill="white", outline="")
 
-        # Big fluffy tail
-        tail_x = cx + s
-        tail_y = cy
-        for i, (dx, dy, tsz) in enumerate([(0, 0, 10), (5, -8, 8), (10, 3, 7)]):
-            self.canvas.create_oval(
-                tail_x + dx - tsz, tail_y + dy - tsz,
-                tail_x + dx + tsz, tail_y + dy + tsz,
-                fill=self.data["secondary"] if i % 2 else color,
-                outline=""
-            )
+        # Small beak - centered below eyes
+        beak_y = cy + s * 0.08
+        beak_pts = [cx, beak_y - s * 0.05, cx - 4, beak_y + s * 0.08, cx + 4, beak_y + s * 0.08]
+        self.canvas.create_polygon(beak_pts, fill=beak_color, outline=darken_color(beak_color))
 
-    def _draw_gemling(self) -> None:
-        """Draw Gemling - Crystal creature."""
+        # Tiny feet - centered at bottom
+        feet_y = cy + s * 0.42
+        self.canvas.create_oval(cx - s * 0.18, feet_y, cx - s * 0.04, feet_y + s * 0.12, fill=beak_color, outline="")
+        self.canvas.create_oval(cx + s * 0.04, feet_y, cx + s * 0.18, feet_y + s * 0.12, fill=beak_color, outline="")
+
+    def _draw_kitsumi(self) -> None:
+        """Draw Kitsumi - Spirit fox with multiple wispy tails (elegant and centered)."""
         cx, cy = self.center_x, self.center_y - self.bounce_offset
         s = self.size
-        color = self.data["primary"]
+        body = self.data["primary"]
+        glow = self.data["secondary"]
+        light = self.data["accent"]
+        outline = darken_color(body)
 
-        # Crystalline body (hexagonal shape)
-        points = []
-        for i in range(6):
-            angle = math.radians(60 * i - 90)
-            points.extend([
-                cx + math.cos(angle) * s * 0.9,
-                cy + math.sin(angle) * s * 0.9
-            ])
-        self.canvas.create_polygon(
-            points,
-            fill=color,
-            outline=self.data["secondary"],
-            width=2
-        )
-
-        # Crystal facet highlights
-        self.canvas.create_line(
-            cx - s * 0.3, cy - s * 0.4,
-            cx, cy + s * 0.2,
-            fill=lighten_color(color, 0.5),
-            width=2
-        )
-        self.canvas.create_line(
-            cx + s * 0.3, cy - s * 0.4,
-            cx, cy + s * 0.2,
-            fill=lighten_color(color, 0.5),
-            width=2
-        )
-
-        # Angular crystal ears
-        for side in [-1, 1]:
-            ear_points = [
-                cx + side * s * 0.5, cy - s * 0.6,
-                cx + side * s * 0.4, cy - s * 1.1,
-                cx + side * s * 0.7, cy - s * 0.8,
+        # Multiple wispy tails (3 tails - behind) - spread nicely
+        for i, angle in enumerate([-25, 0, 25]):
+            rad = math.radians(angle)
+            tail_pts = [
+                cx + s * 0.35, cy + s * 0.15,
+                cx + s * 0.6 + math.cos(rad) * s * 0.15, cy + math.sin(rad) * s * 0.25,
+                cx + s * 0.75 + math.cos(rad) * s * 0.2, cy - s * 0.15 + math.sin(rad) * s * 0.15,
             ]
-            self.canvas.create_polygon(
-                ear_points,
-                fill=self.data["secondary"],
-                outline=darken_color(self.data["secondary"])
-            )
+            self.canvas.create_line(tail_pts, fill=glow if i == 1 else body, width=5 - i, smooth=True)
 
-        # Glowing gem in chest
-        self.canvas.create_oval(
-            cx - 6, cy + s * 0.1,
-            cx + 6, cy + s * 0.35,
-            fill=self.data["accent"],
-            outline=darken_color(self.data["accent"]),
-            width=2
-        )
-        # Gem highlight
-        self.canvas.create_oval(
-            cx - 2, cy + s * 0.12,
-            cx + 1, cy + s * 0.2,
-            fill="white",
-            outline=""
-        )
+        # Elegant fox body - slender
+        self.canvas.create_oval(cx - s * 0.42, cy - s * 0.08, cx + s * 0.42, cy + s * 0.45, fill=body, outline=outline, width=1)
 
-        # Crystal eyes
+        # Belly - centered
+        self.canvas.create_oval(cx - s * 0.24, cy + s * 0.0, cx + s * 0.24, cy + s * 0.32, fill=light, outline="")
+
+        # Head - elegant and centered
+        head_cy = cy - s * 0.28
+        self.canvas.create_oval(cx - s * 0.32, head_cy - s * 0.25, cx + s * 0.32, head_cy + s * 0.25, fill=body, outline=outline, width=1)
+
+        # Pointed elegant ears - symmetrical
+        ear_base_y = head_cy - s * 0.12
+        ear_tip_y = head_cy - s * 0.65
+
+        ear_l = [cx - s * 0.22, ear_base_y, cx - s * 0.35, ear_tip_y, cx - s * 0.05, ear_base_y]
+        self.canvas.create_polygon(ear_l, fill=body, outline=outline)
+        self.canvas.create_polygon([cx - s * 0.2, ear_base_y, cx - s * 0.3, ear_tip_y + s * 0.12, cx - s * 0.1, ear_base_y], fill=glow, outline="")
+
+        ear_r = [cx + s * 0.05, ear_base_y, cx + s * 0.35, ear_tip_y, cx + s * 0.22, ear_base_y]
+        self.canvas.create_polygon(ear_r, fill=body, outline=outline)
+        self.canvas.create_polygon([cx + s * 0.1, ear_base_y, cx + s * 0.3, ear_tip_y + s * 0.12, cx + s * 0.2, ear_base_y], fill=glow, outline="")
+
+        # Glowing eyes - centered
+        eye_y = head_cy
+        for offset in [-s * 0.12, s * 0.12]:
+            self.canvas.create_oval(cx + offset - 4, eye_y - 4, cx + offset + 4, eye_y + 4, fill=glow, outline="")
+            self.canvas.create_oval(cx + offset - 3, eye_y - 3, cx + offset + 3, eye_y + 3, fill="white", outline="")
+            self.canvas.create_oval(cx + offset - 1, eye_y - 1, cx + offset + 1, eye_y + 1, fill=body, outline="")
+
+        # Small nose - centered
+        nose_y = head_cy + s * 0.12
+        self.canvas.create_oval(cx - 2, nose_y - 2, cx + 2, nose_y + 2, fill="#2F2F2F", outline="")
+
+        # Front paws - positioned at bottom
+        paw_y = cy + s * 0.32
+        self.canvas.create_oval(cx - s * 0.22, paw_y, cx - s * 0.08, paw_y + s * 0.12, fill=body, outline=outline)
+        self.canvas.create_oval(cx + s * 0.08, paw_y, cx + s * 0.22, paw_y + s * 0.12, fill=body, outline=outline)
+
+    def _draw_pengi(self) -> None:
+        """Draw Pengi - Tiny penguin standing upright (properly proportioned)."""
+        cx, cy = self.center_x, self.center_y - self.bounce_offset
+        s = self.size
+        body = self.data["primary"]
+        belly = self.data["secondary"]
+        accent = self.data["accent"]
+        outline = darken_color(body)
+        cheek_color = "#FFD6E0"  # Soft pink cheeks
+
+        # Body - oval standing upright, centered
+        self.canvas.create_oval(cx - s * 0.38, cy - s * 0.45, cx + s * 0.38, cy + s * 0.48, fill=body, outline=outline, width=1)
+
+        # White belly (distinctive penguin marking) - properly centered
+        self.canvas.create_oval(cx - s * 0.26, cy - s * 0.28, cx + s * 0.26, cy + s * 0.38, fill=belly, outline="")
+
+        # Flippers out to sides - positioned at correct height on body
+        flip_y = cy - s * 0.05
+        flip_l = [cx - s * 0.32, flip_y - s * 0.1, cx - s * 0.6, flip_y + s * 0.05, cx - s * 0.5, flip_y + s * 0.3, cx - s * 0.32, flip_y + s * 0.2]
+        self.canvas.create_polygon(flip_l, fill=body, outline=outline, smooth=True)
+
+        flip_r = [cx + s * 0.32, flip_y - s * 0.1, cx + s * 0.6, flip_y + s * 0.05, cx + s * 0.5, flip_y + s * 0.3, cx + s * 0.32, flip_y + s * 0.2]
+        self.canvas.create_polygon(flip_r, fill=body, outline=outline, smooth=True)
+
+        # Eyes - centered on upper body/head area
         eye_y = cy - s * 0.2
-        for offset in [-s * 0.25, s * 0.25]:
-            self.canvas.create_polygon(
-                cx + offset, eye_y - 5,
-                cx + offset - 4, eye_y,
-                cx + offset, eye_y + 5,
-                cx + offset + 4, eye_y,
-                fill=self.data["accent"],
-                outline="#2F2F2F"
-            )
+        for offset in [-s * 0.12, s * 0.12]:
+            self.canvas.create_oval(cx + offset - 3, eye_y - 3, cx + offset + 3, eye_y + 3, fill="white", outline="#2F2F2F")
+            self.canvas.create_oval(cx + offset - 1, eye_y - 1, cx + offset + 1, eye_y + 1, fill="#2F2F2F", outline="")
 
-        # Faceted tail
-        tail_x = cx + s * 0.8
-        tail_y = cy + s * 0.2
-        self.canvas.create_polygon(
-            tail_x, tail_y,
-            tail_x + 8, tail_y - 8,
-            tail_x + 15, tail_y,
-            tail_x + 8, tail_y + 8,
-            fill=self.data["secondary"],
-            outline=darken_color(self.data["secondary"])
-        )
+        # Orange beak - centered below eyes
+        beak_y = cy - s * 0.05
+        beak_pts = [cx, beak_y - s * 0.08, cx - 5, beak_y + s * 0.05, cx + 5, beak_y + s * 0.05]
+        self.canvas.create_polygon(beak_pts, fill=accent, outline=darken_color(accent))
 
-    def _draw_thornpaw(self) -> None:
-        """Draw Thornpaw - Grass cat."""
+        # Rosy cheeks - symmetrical
+        cheek_y = cy - s * 0.08
+        self.canvas.create_oval(cx - s * 0.24, cheek_y - s * 0.05, cx - s * 0.1, cheek_y + s * 0.05, fill=cheek_color, outline="")
+        self.canvas.create_oval(cx + s * 0.1, cheek_y - s * 0.05, cx + s * 0.24, cheek_y + s * 0.05, fill=cheek_color, outline="")
+
+        # Orange feet - centered at bottom
+        feet_y = cy + s * 0.38
+        self.canvas.create_oval(cx - s * 0.22, feet_y, cx - s * 0.04, feet_y + s * 0.15, fill=accent, outline=darken_color(accent))
+        self.canvas.create_oval(cx + s * 0.04, feet_y, cx + s * 0.22, feet_y + s * 0.15, fill=accent, outline=darken_color(accent))
+
+    def _draw_leafkit(self) -> None:
+        """Draw Leafkit - Grass kitten with leaf ears and vine tail (cute and aligned)."""
         cx, cy = self.center_x, self.center_y - self.bounce_offset
         s = self.size
-        color = self.data["primary"]
+        body = self.data["primary"]
+        stripes = self.data["secondary"]
+        flower = self.data["accent"]
+        outline = darken_color(body)
 
-        # Round body
-        self.canvas.create_oval(
-            cx - s, cy - s * 0.85,
-            cx + s, cy + s,
-            fill=color,
-            outline=darken_color(color),
-            width=2
-        )
+        # Vine tail with leaf (behind) - properly attached to body
+        tail_start_x = cx + s * 0.32
+        tail_start_y = cy + s * 0.15
+        self.canvas.create_line(tail_start_x, tail_start_y, cx + s * 0.55, cy, cx + s * 0.72, cy + s * 0.08, fill=stripes, width=3, smooth=True)
+        # Leaf at end - properly shaped
+        leaf_pts = [cx + s * 0.68, cy + s * 0.03, cx + s * 0.88, cy - s * 0.1, cx + s * 0.78, cy + s * 0.18]
+        self.canvas.create_polygon(leaf_pts, fill=body, outline=stripes)
 
-        # Petal collar
-        for angle in range(0, 360, 45):
-            rad = math.radians(angle)
-            petal_cx = cx + math.cos(rad) * s * 0.65
-            petal_cy = cy + s * 0.1 + math.sin(rad) * s * 0.4
-            self.canvas.create_oval(
-                petal_cx - 5, petal_cy - 4,
-                petal_cx + 5, petal_cy + 4,
-                fill=self.data["accent"],
-                outline=""
-            )
+        # Cat body curled - centered
+        self.canvas.create_oval(cx - s * 0.42, cy - s * 0.08, cx + s * 0.38, cy + s * 0.45, fill=body, outline=outline, width=1)
 
-        # Body overlay (to cover petal stems)
-        self.canvas.create_oval(
-            cx - s * 0.7, cy - s * 0.5,
-            cx + s * 0.7, cy + s * 0.7,
-            fill=color,
-            outline=""
-        )
+        # Stripes on body
+        self.canvas.create_arc(cx - s * 0.28, cy + s * 0.02, cx + s * 0.18, cy + s * 0.28, start=0, extent=180, style=tk.ARC, outline=stripes, width=2)
 
-        # Leaf-shaped ears
-        for side in [-1, 1]:
-            points = [
-                cx + side * s * 0.3, cy - s * 0.5,
-                cx + side * s * 0.2, cy - s * 1.0,
-                cx + side * s * 0.5, cy - s * 0.9,
-                cx + side * s * 0.6, cy - s * 0.4,
-            ]
-            self.canvas.create_polygon(
-                points,
-                fill=self.data["secondary"],
-                outline=darken_color(self.data["secondary"]),
-                smooth=True
-            )
+        # Head - centered
+        head_cy = cy - s * 0.28
+        self.canvas.create_oval(cx - s * 0.32, head_cy - s * 0.25, cx + s * 0.32, head_cy + s * 0.25, fill=body, outline=outline, width=1)
 
-        # Green cat eyes
-        eye_y = cy - s * 0.1
-        for offset in [-s * 0.3, s * 0.3]:
-            self.canvas.create_oval(
-                cx + offset - 5, eye_y - 5,
-                cx + offset + 5, eye_y + 5,
-                fill=self.data["secondary"],
-                outline="#2F2F2F"
-            )
-            # Vertical pupil
-            self.canvas.create_oval(
-                cx + offset - 1, eye_y - 4,
-                cx + offset + 1, eye_y + 4,
-                fill="#2F2F2F",
-                outline=""
-            )
+        # Leaf-shaped ears - properly shaped and positioned
+        ear_base_y = head_cy - s * 0.12
 
-        # Cat nose
-        self.canvas.create_polygon(
-            cx, cy + s * 0.1,
-            cx - 3, cy + s * 0.2,
-            cx + 3, cy + s * 0.2,
-            fill="#FFB6C1",
-            outline=""
-        )
+        leaf_ear_l = [cx - s * 0.22, ear_base_y, cx - s * 0.4, ear_base_y - s * 0.35, cx - s * 0.15, ear_base_y - s * 0.28, cx - s * 0.05, ear_base_y]
+        self.canvas.create_polygon(leaf_ear_l, fill=body, outline=stripes, smooth=True)
 
-        # Vine tail with flower bud
-        tail_x = cx + s * 0.8
-        tail_y = cy + s * 0.1
-        self.canvas.create_line(
-            tail_x, tail_y,
-            tail_x + 10, tail_y - 10,
-            tail_x + 15, tail_y - 5,
-            fill=self.data["secondary"],
-            width=3,
-            smooth=True
-        )
-        # Flower bud at end
-        self.canvas.create_oval(
-            tail_x + 12, tail_y - 10,
-            tail_x + 20, tail_y - 2,
-            fill=self.data["accent"],
-            outline=darken_color(self.data["accent"])
-        )
+        leaf_ear_r = [cx + s * 0.05, ear_base_y, cx + s * 0.15, ear_base_y - s * 0.28, cx + s * 0.4, ear_base_y - s * 0.35, cx + s * 0.22, ear_base_y]
+        self.canvas.create_polygon(leaf_ear_r, fill=body, outline=stripes, smooth=True)
 
-    def _draw_flickett(self) -> None:
-        """Draw Flickett - Electric bunny."""
+        # Flower bud on head - centered between ears
+        flower_y = head_cy - s * 0.48
+        self.canvas.create_oval(cx - s * 0.08, flower_y - s * 0.08, cx + s * 0.08, flower_y + s * 0.08, fill=flower, outline=darken_color(flower))
+
+        # Cat eyes (with slit pupils) - centered
+        eye_y = head_cy
+        for offset in [-s * 0.12, s * 0.12]:
+            self.canvas.create_oval(cx + offset - 4, eye_y - 4, cx + offset + 4, eye_y + 4, fill=stripes, outline="#2F2F2F")
+            self.canvas.create_oval(cx + offset - 1, eye_y - 3, cx + offset + 1, eye_y + 3, fill="#2F2F2F", outline="")
+
+        # Pink nose - centered
+        nose_y = head_cy + s * 0.12
+        nose_pts = [cx, nose_y - s * 0.05, cx - 3, nose_y + s * 0.03, cx + 3, nose_y + s * 0.03]
+        self.canvas.create_polygon(nose_pts, fill="#FFB6C1", outline="")
+
+        # Front paws - centered at bottom
+        paw_y = cy + s * 0.32
+        self.canvas.create_oval(cx - s * 0.28, paw_y, cx - s * 0.08, paw_y + s * 0.15, fill=body, outline=outline)
+        self.canvas.create_oval(cx + s * 0.08, paw_y, cx + s * 0.28, paw_y + s * 0.15, fill=body, outline=outline)
+
+    def _draw_sparkrat(self) -> None:
+        """Draw Sparkrat - Electric mouse standing on hind legs (properly proportioned)."""
         cx, cy = self.center_x, self.center_y - self.bounce_offset
         s = self.size
-        color = self.data["primary"]
+        body = self.data["primary"]
+        light = self.data["secondary"]
+        cheeks = self.data["accent"]
+        outline = darken_color(body)
 
-        # Body with static-fuzzy effect (jagged outline simulated)
-        self.canvas.create_oval(
-            cx - s, cy - s * 0.8,
-            cx + s, cy + s,
-            fill=color,
-            outline=darken_color(color),
-            width=2,
-            dash=(3, 2)
-        )
-
-        # Long zigzag-tipped rabbit ears
-        for side in [-1, 1]:
-            ear_x = cx + side * s * 0.3
-            # Main ear
-            self.canvas.create_oval(
-                ear_x - s * 0.18, cy - s * 1.3,
-                ear_x + s * 0.18, cy - s * 0.3,
-                fill=color,
-                outline=darken_color(color)
-            )
-            # Zigzag tip
-            tip_y = cy - s * 1.3
-            points = [
-                ear_x - 4, tip_y + 5,
-                ear_x - 2, tip_y - 3,
-                ear_x + 2, tip_y + 2,
-                ear_x + 4, tip_y - 5,
-            ]
-            self.canvas.create_line(
-                points,
-                fill=self.data["accent"],
-                width=2
-            )
-
-        # Spark marks on cheeks
-        for side in [-1, 1]:
-            spark_x = cx + side * s * 0.5
-            spark_y = cy + s * 0.1
-            self.canvas.create_text(
-                spark_x, spark_y,
-                text="*",
-                font=("Arial", 10, "bold"),
-                fill=self.data["accent"]
-            )
-
-        # Energetic wide eyes
-        eye_y = cy - s * 0.1
-        for offset in [-s * 0.3, s * 0.3]:
-            self.canvas.create_oval(
-                cx + offset - 5, eye_y - 6,
-                cx + offset + 5, eye_y + 6,
-                fill="white",
-                outline="#2F2F2F"
-            )
-            self.canvas.create_oval(
-                cx + offset - 3, eye_y - 3,
-                cx + offset + 3, eye_y + 3,
-                fill="#2F2F2F",
-                outline=""
-            )
-            # Multiple sparkles for energetic look
-            self.canvas.create_oval(
-                cx + offset - 1, eye_y - 4,
-                cx + offset + 1, eye_y - 2,
-                fill="white",
-                outline=""
-            )
-
-        # Excited open smile
-        self.canvas.create_arc(
-            cx - 6, cy + s * 0.15,
-            cx + 6, cy + s * 0.4,
-            start=200, extent=140,
-            style=tk.CHORD,
-            fill="#FF6B6B",
-            outline="#2F2F2F"
-        )
-
-        # Lightning bolt feet
-        for side in [-1, 1]:
-            foot_x = cx + side * s * 0.4
-            foot_y = cy + s * 0.85
-            points = [
-                foot_x - 3, foot_y - 3,
-                foot_x + 3 * side, foot_y - 8,
-                foot_x, foot_y,
-                foot_x + 5 * side, foot_y + 5,
-            ]
-            self.canvas.create_polygon(
-                points,
-                fill=self.data["secondary"],
-                outline=""
-            )
-
-    def _draw_soochi(self) -> None:
-        """Draw Soochi - Psychic fox."""
-        cx, cy = self.center_x, self.center_y - self.bounce_offset
-        s = self.size
-        color = self.data["primary"]
-
-        # Purple gradient body (simulated with overlapping ovals)
-        self.canvas.create_oval(
-            cx - s, cy - s * 0.85,
-            cx + s, cy + s,
-            fill=self.data["secondary"],
-            outline=darken_color(self.data["secondary"]),
-            width=2
-        )
-        self.canvas.create_oval(
-            cx - s * 0.85, cy - s * 0.7,
-            cx + s * 0.85, cy + s * 0.85,
-            fill=color,
-            outline=""
-        )
-
-        # Fox ears
-        for side in [-1, 1]:
-            points = [
-                cx + side * s * 0.4, cy - s * 0.5,
-                cx + side * s * 0.2, cy - s * 1.1,
-                cx + side * s * 0.7, cy - s * 0.5,
-            ]
-            self.canvas.create_polygon(
-                points,
-                fill=self.data["secondary"],
-                outline=darken_color(self.data["secondary"])
-            )
-
-        # Third eye gem on forehead
-        self.canvas.create_oval(
-            cx - 4, cy - s * 0.5,
-            cx + 4, cy - s * 0.3,
-            fill=self.data["accent"],
-            outline=darken_color(self.data["accent"]),
-            width=2
-        )
-
-        # Mysterious glowing eyes
-        eye_y = cy - s * 0.05
-        for offset in [-s * 0.3, s * 0.3]:
-            # Glow effect
-            self.canvas.create_oval(
-                cx + offset - 7, eye_y - 7,
-                cx + offset + 7, eye_y + 7,
-                fill=self.data["accent"],
-                outline=""
-            )
-            self.canvas.create_oval(
-                cx + offset - 5, eye_y - 5,
-                cx + offset + 5, eye_y + 5,
-                fill="white",
-                outline=""
-            )
-            self.canvas.create_oval(
-                cx + offset - 2, eye_y - 2,
-                cx + offset + 2, eye_y + 2,
-                fill=self.data["accent"],
-                outline=""
-            )
-
-        # Wispy floating tail tendrils
-        tail_base_x = cx + s * 0.7
-        tail_base_y = cy + s * 0.2
-        for i, (curve, length) in enumerate([(10, 20), (-5, 15), (15, 18)]):
-            self.canvas.create_line(
-                tail_base_x, tail_base_y,
-                tail_base_x + length * 0.5, tail_base_y + curve,
-                tail_base_x + length, tail_base_y + curve * 0.3,
-                fill=self.data["secondary"] if i % 2 else color,
-                width=3 - i * 0.5,
-                smooth=True
-            )
-
-    def _draw_kibble(self) -> None:
-        """Draw Kibble - Normal type cutie."""
-        cx, cy = self.center_x, self.center_y - self.bounce_offset
-        s = self.size
-        color = self.data["primary"]
-
-        # Cream round body
-        self.canvas.create_oval(
-            cx - s, cy - s * 0.85,
-            cx + s, cy + s,
-            fill=color,
-            outline=self.data["secondary"],
-            width=2
-        )
-
-        # Belly
-        self.canvas.create_oval(
-            cx - s * 0.6, cy - s * 0.1,
-            cx + s * 0.6, cy + s * 0.7,
-            fill=lighten_color(color, 0.4),
-            outline=""
-        )
-
-        # One floppy ear, one perked ear
-        # Left ear (perked)
-        points_left = [
-            cx - s * 0.5, cy - s * 0.5,
-            cx - s * 0.3, cy - s * 1.0,
-            cx - s * 0.1, cy - s * 0.5,
+        # Zigzag tail (behind) - properly shaped lightning bolt
+        tail_pts = [
+            cx + s * 0.28, cy + s * 0.15,
+            cx + s * 0.45, cy + s * 0.05,
+            cx + s * 0.4, cy + s * 0.25,
+            cx + s * 0.6, cy + s * 0.1,
+            cx + s * 0.52, cy + s * 0.35,
+            cx + s * 0.75, cy + s * 0.2,
         ]
-        self.canvas.create_polygon(points_left, fill=color, outline=self.data["secondary"])
+        self.canvas.create_line(tail_pts, fill=body, width=4)
 
-        # Right ear (floppy)
-        self.canvas.create_oval(
-            cx + s * 0.2, cy - s * 0.6,
-            cx + s * 0.8, cy + s * 0.1,
-            fill=color,
-            outline=self.data["secondary"]
-        )
+        # Chubby body (standing upright) - centered
+        self.canvas.create_oval(cx - s * 0.38, cy - s * 0.18, cx + s * 0.38, cy + s * 0.48, fill=body, outline=outline, width=1)
 
-        # Simple happy eyes
-        eye_y = cy - s * 0.1
-        for offset in [-s * 0.3, s * 0.3]:
-            self.canvas.create_oval(
-                cx + offset - 4, eye_y - 4,
-                cx + offset + 4, eye_y + 4,
-                fill="#2F2F2F",
-                outline=""
-            )
-            self.canvas.create_oval(
-                cx + offset - 2, eye_y - 2,
-                cx + offset, eye_y,
-                fill="white",
-                outline=""
-            )
+        # Belly - centered
+        self.canvas.create_oval(cx - s * 0.24, cy - s * 0.05, cx + s * 0.24, cy + s * 0.32, fill=light, outline="")
 
-        # Heart-shaped pink nose
-        self.canvas.create_text(
-            cx, cy + s * 0.2,
-            text="\u2665",
-            font=("Arial", 8),
-            fill=self.data["accent"]
-        )
+        # Head - centered
+        head_cy = cy - s * 0.28
+        self.canvas.create_oval(cx - s * 0.32, head_cy - s * 0.25, cx + s * 0.32, head_cy + s * 0.25, fill=body, outline=outline, width=1)
 
-        # Tongue out
-        self.canvas.create_oval(
-            cx - 3, cy + s * 0.35,
-            cx + 3, cy + s * 0.5,
-            fill="#FF6B6B",
-            outline="#2F2F2F"
-        )
+        # Round ears with black inside - symmetrically positioned
+        ear_y = head_cy - s * 0.15
 
-        # Curly tail
-        tail_x = cx + s * 0.8
-        tail_y = cy + s * 0.2
-        self.canvas.create_arc(
-            tail_x - 8, tail_y - 8,
-            tail_x + 8, tail_y + 8,
-            start=0, extent=270,
-            style=tk.ARC,
-            outline=self.data["secondary"],
-            width=4
-        )
+        # Left ear
+        self.canvas.create_oval(cx - s * 0.42, ear_y - s * 0.2, cx - s * 0.15, ear_y + s * 0.1, fill=body, outline=outline)
+        self.canvas.create_oval(cx - s * 0.36, ear_y - s * 0.14, cx - s * 0.21, ear_y + s * 0.04, fill="#2F2F2F", outline="")
 
-    def _draw_wispurr(self) -> None:
-        """Draw Wispurr - Ghost cat."""
+        # Right ear
+        self.canvas.create_oval(cx + s * 0.15, ear_y - s * 0.2, cx + s * 0.42, ear_y + s * 0.1, fill=body, outline=outline)
+        self.canvas.create_oval(cx + s * 0.21, ear_y - s * 0.14, cx + s * 0.36, ear_y + s * 0.04, fill="#2F2F2F", outline="")
+
+        # Cheek marks - symmetrically positioned
+        cheek_y = head_cy + s * 0.05
+        for side in [-1, 1]:
+            cheek_x = cx + side * s * 0.26
+            self.canvas.create_oval(cheek_x - 5, cheek_y - 4, cheek_x + 5, cheek_y + 4, fill=cheeks, outline="")
+
+        # Eyes - centered
+        eye_y = head_cy - s * 0.02
+        for offset in [-s * 0.12, s * 0.12]:
+            self.canvas.create_oval(cx + offset - 3, eye_y - 3, cx + offset + 3, eye_y + 3, fill="#2F2F2F", outline="")
+            self.canvas.create_oval(cx + offset - 1, eye_y - 2, cx + offset + 1, eye_y, fill="white", outline="")
+
+        # Nose - centered
+        nose_y = head_cy + s * 0.12
+        self.canvas.create_oval(cx - 2, nose_y - 2, cx + 2, nose_y + 2, fill="#2F2F2F", outline="")
+
+        # Little arms/paws raised - symmetrical
+        arm_y = cy - s * 0.02
+        self.canvas.create_oval(cx - s * 0.32, arm_y, cx - s * 0.18, arm_y + s * 0.15, fill=body, outline=outline)
+        self.canvas.create_oval(cx + s * 0.18, arm_y, cx + s * 0.32, arm_y + s * 0.15, fill=body, outline=outline)
+
+        # Feet - centered at bottom
+        feet_y = cy + s * 0.35
+        self.canvas.create_oval(cx - s * 0.26, feet_y, cx - s * 0.06, feet_y + s * 0.15, fill=body, outline=outline)
+        self.canvas.create_oval(cx + s * 0.06, feet_y, cx + s * 0.26, feet_y + s * 0.15, fill=body, outline=outline)
+
+    def _draw_drakeling(self) -> None:
+        """Draw Drakeling - Baby dragon with tiny wings (wings at shoulders, horns on head)."""
         cx, cy = self.center_x, self.center_y - self.bounce_offset
         s = self.size
-        color = self.data["primary"]
+        body = self.data["primary"]
+        scales = self.data["secondary"]
+        wings = self.data["accent"]
+        outline = darken_color(body)
+        horn_color = "#E4C9B4"  # Soft tan horns
 
-        # Ghostly aura (outer glow)
-        self.canvas.create_oval(
-            cx - s * 1.1, cy - s * 1.0,
-            cx + s * 1.1, cy + s * 1.1,
-            fill=lighten_color(color, 0.7),
-            outline=""
-        )
+        # Curled tail with arrow tip (behind) - properly attached
+        tail_pts = [cx + s * 0.32, cy + s * 0.25, cx + s * 0.55, cy + s * 0.4, cx + s * 0.72, cy + s * 0.25, cx + s * 0.58, cy + s * 0.15]
+        self.canvas.create_polygon(tail_pts, fill=body, outline=scales, smooth=True)
+        # Arrow tip
+        arrow_pts = [cx + s * 0.68, cy + s * 0.2, cx + s * 0.88, cy + s * 0.15, cx + s * 0.72, cy + s * 0.32]
+        self.canvas.create_polygon(arrow_pts, fill=scales, outline="")
 
-        # Semi-transparent purple body (fading at bottom)
-        self.canvas.create_oval(
-            cx - s, cy - s * 0.85,
-            cx + s, cy + s * 0.5,
-            fill=color,
-            outline=""
-        )
-        # Wispy bottom (triangle fade)
-        points = [
-            cx - s * 0.8, cy + s * 0.3,
-            cx, cy + s * 1.2,
-            cx + s * 0.8, cy + s * 0.3,
-        ]
-        self.canvas.create_polygon(
-            points,
-            fill=color,
-            outline="",
-            smooth=True
-        )
+        # Tiny bat-like wings (behind body) - attached at shoulder level
+        wing_y = cy - s * 0.12
+        wing_l = [cx - s * 0.28, wing_y, cx - s * 0.58, wing_y - s * 0.28, cx - s * 0.48, wing_y, cx - s * 0.4, wing_y - s * 0.15, cx - s * 0.32, wing_y + s * 0.12]
+        self.canvas.create_polygon(wing_l, fill=wings, outline=scales)
 
-        # Cat ears
-        for side in [-1, 1]:
-            points = [
-                cx + side * s * 0.4, cy - s * 0.5,
-                cx + side * s * 0.2, cy - s * 1.0,
-                cx + side * s * 0.6, cy - s * 0.5,
-            ]
-            self.canvas.create_polygon(
-                points,
-                fill=self.data["secondary"],
-                outline=color
-            )
+        wing_r = [cx + s * 0.28, wing_y, cx + s * 0.58, wing_y - s * 0.28, cx + s * 0.48, wing_y, cx + s * 0.4, wing_y - s * 0.15, cx + s * 0.32, wing_y + s * 0.12]
+        self.canvas.create_polygon(wing_r, fill=wings, outline=scales)
 
-        # Glowing white eyes
-        eye_y = cy - s * 0.1
-        for offset in [-s * 0.3, s * 0.3]:
-            # Glow
-            self.canvas.create_oval(
-                cx + offset - 6, eye_y - 6,
-                cx + offset + 6, eye_y + 6,
-                fill=self.data["accent"],
-                outline=""
-            )
-            self.canvas.create_oval(
-                cx + offset - 4, eye_y - 4,
-                cx + offset + 4, eye_y + 4,
-                fill="white",
-                outline=""
-            )
+        # Dragon body sitting - centered
+        self.canvas.create_oval(cx - s * 0.38, cy - s * 0.12, cx + s * 0.38, cy + s * 0.48, fill=body, outline=scales, width=1)
 
-        # Wispy tail that fades
-        tail_x = cx + s * 0.6
-        tail_y = cy + s * 0.3
+        # Belly scales - centered
+        self.canvas.create_oval(cx - s * 0.2, cy + s * 0.0, cx + s * 0.2, cy + s * 0.32, fill=lighten_color(body, 0.3), outline="")
+
+        # Head - centered
+        head_cy = cy - s * 0.28
+        self.canvas.create_oval(cx - s * 0.3, head_cy - s * 0.22, cx + s * 0.3, head_cy + s * 0.22, fill=body, outline=scales, width=1)
+
+        # Small horns on top of head - symmetrical
+        horn_base_y = head_cy - s * 0.15
+        horn_tip_y = head_cy - s * 0.48
+
+        horn_l = [cx - s * 0.18, horn_base_y, cx - s * 0.28, horn_tip_y, cx - s * 0.08, horn_base_y + s * 0.05]
+        self.canvas.create_polygon(horn_l, fill=horn_color, outline=darken_color(horn_color))
+
+        horn_r = [cx + s * 0.08, horn_base_y + s * 0.05, cx + s * 0.28, horn_tip_y, cx + s * 0.18, horn_base_y]
+        self.canvas.create_polygon(horn_r, fill=horn_color, outline=darken_color(horn_color))
+
+        # Eyes (golden with slit pupils) - centered
+        eye_y = head_cy
+        for offset in [-s * 0.1, s * 0.1]:
+            self.canvas.create_oval(cx + offset - 4, eye_y - 4, cx + offset + 4, eye_y + 4, fill="#FFD700", outline="#2F2F2F")
+            self.canvas.create_oval(cx + offset - 1, eye_y - 3, cx + offset + 1, eye_y + 3, fill="#2F2F2F", outline="")
+
+        # Snout/nose - centered
+        nose_y = head_cy + s * 0.12
+        self.canvas.create_oval(cx - 3, nose_y - 2, cx + 3, nose_y + 3, fill=scales, outline="")
+        # Nostrils
+        self.canvas.create_oval(cx - 4, nose_y, cx - 2, nose_y + 2, fill="#2F2F2F", outline="")
+        self.canvas.create_oval(cx + 2, nose_y, cx + 4, nose_y + 2, fill="#2F2F2F", outline="")
+
+        # Front claws - centered at bottom
+        claw_y = cy + s * 0.32
+        self.canvas.create_oval(cx - s * 0.26, claw_y, cx - s * 0.06, claw_y + s * 0.15, fill=body, outline=scales)
+        self.canvas.create_oval(cx + s * 0.06, claw_y, cx + s * 0.26, claw_y + s * 0.15, fill=body, outline=scales)
+
+    def _draw_shimi(self) -> None:
+        """Draw Shimi - Ghost cat with fading wispy bottom (ethereal and floaty)."""
+        cx, cy = self.center_x, self.center_y - self.bounce_offset
+        s = self.size
+        body = self.data["primary"]
+        glow = self.data["secondary"]
+        white = self.data["accent"]
+
+        # Ghostly aura (outer glow) - centered
+        self.canvas.create_oval(cx - s * 0.55, cy - s * 0.65, cx + s * 0.55, cy + s * 0.5, fill=lighten_color(body, 0.6), outline="")
+
+        # Wispy fading tail (to the side and fading)
         for i in range(3):
-            alpha = 1.0 - i * 0.3
-            width = 4 - i
-            self.canvas.create_line(
-                tail_x + i * 5, tail_y,
-                tail_x + i * 5 + 10, tail_y - 10 + i * 5,
-                fill=lighten_color(color, i * 0.2),
-                width=width,
-                smooth=True
-            )
-
-    def _draw_tidekit(self) -> None:
-        """Draw Tidekit - Water kitten."""
-        cx, cy = self.center_x, self.center_y - self.bounce_offset
-        s = self.size
-        color = self.data["primary"]
-
-        # Light blue round body
-        self.canvas.create_oval(
-            cx - s, cy - s * 0.85,
-            cx + s, cy + s,
-            fill=color,
-            outline=self.data["secondary"],
-            width=2
-        )
-
-        # Bubble patterns
-        bubble_positions = [(-s * 0.5, -s * 0.3), (s * 0.4, s * 0.2), (-s * 0.3, s * 0.4)]
-        for bx, by in bubble_positions:
+            alpha_fade = lighten_color(body, i * 0.2)
             self.canvas.create_oval(
-                cx + bx - 4, cy + by - 4,
-                cx + bx + 4, cy + by + 4,
-                fill=lighten_color(color, 0.5),
-                outline=self.data["accent"]
+                cx + s * 0.32 + i * 7, cy + s * 0.05 - i * 3,
+                cx + s * 0.5 + i * 7, cy + s * 0.25 - i * 3,
+                fill=alpha_fade, outline=""
             )
 
-        # Fin-shaped ears
-        for side in [-1, 1]:
-            points = [
-                cx + side * s * 0.4, cy - s * 0.5,
-                cx + side * s * 0.2, cy - s * 0.9,
-                cx + side * s * 0.5, cy - s * 0.7,
-                cx + side * s * 0.7, cy - s * 0.4,
-            ]
-            self.canvas.create_polygon(
-                points,
-                fill=self.data["secondary"],
-                outline=darken_color(self.data["secondary"]),
-                smooth=True
-            )
+        # Cat silhouette body (fades at bottom - no legs) - centered
+        self.canvas.create_oval(cx - s * 0.38, cy - s * 0.4, cx + s * 0.38, cy + s * 0.2, fill=body, outline="")
 
-        # Cat eyes
-        eye_y = cy - s * 0.1
-        for offset in [-s * 0.3, s * 0.3]:
-            self.canvas.create_oval(
-                cx + offset - 5, eye_y - 5,
-                cx + offset + 5, eye_y + 5,
-                fill=self.data["secondary"],
-                outline="#2F2F2F"
-            )
-            self.canvas.create_oval(
-                cx + offset - 2, eye_y - 2,
-                cx + offset + 2, eye_y + 2,
-                fill="#2F2F2F",
-                outline=""
-            )
+        # Wispy bottom (fading triangle instead of legs) - properly shaped for ghostly effect
+        wisps = [cx - s * 0.32, cy + s * 0.1, cx, cy + s * 0.5, cx + s * 0.32, cy + s * 0.1]
+        self.canvas.create_polygon(wisps, fill=body, outline="", smooth=True)
 
-        # Cat nose
-        self.canvas.create_polygon(
-            cx, cy + s * 0.1,
-            cx - 3, cy + s * 0.2,
-            cx + 3, cy + s * 0.2,
-            fill="#FFB6C1",
-            outline=""
-        )
+        # Pointed cat ears - centered
+        ear_base_y = cy - s * 0.32
+        ear_tip_y = cy - s * 0.7
 
-        # Whiskers
-        for side in [-1, 1]:
-            for dy in [-2, 2]:
-                self.canvas.create_line(
-                    cx + side * s * 0.15, cy + s * 0.2 + dy,
-                    cx + side * s * 0.6, cy + s * 0.15 + dy * 1.5,
-                    fill="#333333",
-                    width=1
-                )
+        ear_l = [cx - s * 0.28, ear_base_y, cx - s * 0.42, ear_tip_y, cx - s * 0.1, ear_base_y]
+        self.canvas.create_polygon(ear_l, fill=glow, outline=body)
 
-        # Fish-like tail
-        tail_x = cx + s * 0.8
-        tail_y = cy + s * 0.2
-        points = [
-            tail_x, tail_y,
-            tail_x + 15, tail_y - 10,
-            tail_x + 10, tail_y,
-            tail_x + 15, tail_y + 10,
-        ]
-        self.canvas.create_polygon(
-            points,
-            fill=self.data["secondary"],
-            outline=darken_color(self.data["secondary"])
-        )
+        ear_r = [cx + s * 0.1, ear_base_y, cx + s * 0.42, ear_tip_y, cx + s * 0.28, ear_base_y]
+        self.canvas.create_polygon(ear_r, fill=glow, outline=body)
 
-    def _draw_charrix(self) -> None:
-        """Draw Charrix - Fire fox."""
-        cx, cy = self.center_x, self.center_y - self.bounce_offset
-        s = self.size
-        color = self.data["primary"]
+        # Glowing white/blue eyes - centered and properly sized
+        eye_y = cy - s * 0.15
+        for offset in [-s * 0.15, s * 0.15]:
+            # Glow effect
+            self.canvas.create_oval(cx + offset - 6, eye_y - 5, cx + offset + 6, eye_y + 5, fill=white, outline="")
+            # Eye core
+            self.canvas.create_oval(cx + offset - 3, eye_y - 3, cx + offset + 3, eye_y + 3, fill="#87CEEB", outline="")
 
-        # Orange-red body
-        self.canvas.create_oval(
-            cx - s, cy - s * 0.85,
-            cx + s, cy + s,
-            fill=color,
-            outline=darken_color(color),
-            width=2
-        )
-
-        # Large fox ears
-        for side in [-1, 1]:
-            points = [
-                cx + side * s * 0.35, cy - s * 0.55,
-                cx + side * s * 0.15, cy - s * 1.2,
-                cx + side * s * 0.65, cy - s * 0.55,
-            ]
-            self.canvas.create_polygon(
-                points,
-                fill=color,
-                outline=darken_color(color)
-            )
-            # Inner ear
-            inner_points = [
-                cx + side * s * 0.35, cy - s * 0.55,
-                cx + side * s * 0.2, cy - s * 0.95,
-                cx + side * s * 0.55, cy - s * 0.55,
-            ]
-            self.canvas.create_polygon(
-                inner_points,
-                fill=self.data["secondary"],
-                outline=""
-            )
-
-        # Ember freckle marks on cheeks
-        for side in [-1, 1]:
-            for i in range(3):
-                fx = cx + side * (s * 0.4 + i * 4)
-                fy = cy + s * 0.05 + (i % 2) * 3
-                self.canvas.create_oval(
-                    fx - 2, fy - 2,
-                    fx + 2, fy + 2,
-                    fill=self.data["accent"],
-                    outline=""
-                )
-
-        # Fierce but cute eyes
-        eye_y = cy - s * 0.1
-        for side_idx, offset in enumerate([-s * 0.3, s * 0.3]):
-            self.canvas.create_oval(
-                cx + offset - 5, eye_y - 5,
-                cx + offset + 5, eye_y + 5,
-                fill="white",
-                outline="#2F2F2F"
-            )
-            self.canvas.create_oval(
-                cx + offset - 3, eye_y - 2,
-                cx + offset + 3, eye_y + 4,
-                fill=self.data["accent"],
-                outline=""
-            )
-            self.canvas.create_oval(
-                cx + offset - 1, eye_y,
-                cx + offset + 1, eye_y + 2,
-                fill="#2F2F2F",
-                outline=""
-            )
-            # Determined eyebrows
-            side = -1 if side_idx == 0 else 1
-            self.canvas.create_line(
-                cx + offset - 5, eye_y - 8,
-                cx + offset + 5, eye_y - 6 + side * 2,
-                fill=darken_color(color),
-                width=2
-            )
-
-        # Small nose
-        self.canvas.create_oval(
-            cx - 3, cy + s * 0.15 - 2,
-            cx + 3, cy + s * 0.15 + 2,
-            fill="#2F2F2F",
-            outline=""
-        )
-
-        # Multiple small flame tails (3-5)
-        tail_base_x = cx + s * 0.7
-        tail_base_y = cy + s * 0.15
-        for i, (angle, length, width) in enumerate([
-            (-30, 18, 4), (0, 22, 5), (30, 18, 4), (-15, 15, 3), (15, 15, 3)
-        ]):
-            rad = math.radians(angle)
-            end_x = tail_base_x + math.cos(rad) * length
-            end_y = tail_base_y - math.sin(rad) * length * 0.5
-            color_choice = self.data["secondary"] if i % 2 == 0 else self.data["accent"]
-            self.canvas.create_line(
-                tail_base_x, tail_base_y,
-                end_x, end_y,
-                fill=color_choice,
-                width=width,
-                capstyle=tk.ROUND
-            )
+        # No nose or mouth - ethereal/mysterious
 
 
 class CreatureSelectionScreen:
     """
     Selection screen for choosing a creature type.
 
-    Displays a 5x3 grid of creatures with animated previews.
+    Displays a 5x2 grid of creatures with animated previews.
     """
 
     WINDOW_WIDTH = 680
-    WINDOW_HEIGHT = 580
+    WINDOW_HEIGHT = 420
     CELL_SIZE = 120
     PREVIEW_SIZE = 35
 
@@ -1578,7 +782,7 @@ class CreatureSelectionScreen:
         grid_frame = tk.Frame(self.root, bg="#2E2E4E")
         grid_frame.pack(pady=10)
 
-        # Create creature grid (5x3)
+        # Create creature grid (5x2 for 10 creatures)
         creature_list = list(CREATURES.keys())
         for idx, creature_type in enumerate(creature_list):
             row = idx // 5
@@ -1725,3 +929,237 @@ def show_selection_screen(
     """
     screen = CreatureSelectionScreen(on_select, on_cancel)
     screen.run()
+
+
+class CreatureSelectionDialog:
+    """
+    Modal dialog version of creature selection for use within existing app.
+
+    Unlike CreatureSelectionScreen which creates its own root window,
+    this creates a Toplevel dialog that can be shown from an existing app.
+    """
+
+    WINDOW_WIDTH = 680
+    WINDOW_HEIGHT = 420
+    CELL_SIZE = 120
+    PREVIEW_SIZE = 35
+
+    def __init__(
+        self,
+        parent: tk.Tk,
+        on_select: Callable[[str], None],
+        on_cancel: Optional[Callable[[], None]] = None
+    ) -> None:
+        """
+        Initialize selection dialog.
+
+        Args:
+            parent: Parent Tkinter window.
+            on_select: Callback when a creature is selected.
+            on_cancel: Callback when selection is cancelled.
+        """
+        self.parent = parent
+        self.on_select = on_select
+        self.on_cancel = on_cancel
+        self.selected_creature: Optional[str] = None
+        self.previews: list[tuple[tk.Canvas, CreaturePreview]] = []
+        self.animation_phase = 0.0
+        self._animation_id: Optional[str] = None
+
+        self._create_dialog()
+        self._start_animation()
+
+    def _create_dialog(self) -> None:
+        """Create the selection dialog window."""
+        self.dialog = tk.Toplevel(self.parent)
+        self.dialog.title("Choose Your Floob!")
+        self.dialog.geometry(f"{self.WINDOW_WIDTH}x{self.WINDOW_HEIGHT}")
+        self.dialog.resizable(False, False)
+        self.dialog.configure(bg="#2E2E4E")
+        self.dialog.transient(self.parent)
+        self.dialog.grab_set()
+
+        # Make dialog appear on top
+        self.dialog.attributes("-topmost", True)
+
+        # Center dialog on screen
+        screen_width = self.dialog.winfo_screenwidth()
+        screen_height = self.dialog.winfo_screenheight()
+        x = (screen_width - self.WINDOW_WIDTH) // 2
+        y = (screen_height - self.WINDOW_HEIGHT) // 2
+        self.dialog.geometry(f"+{x}+{y}")
+
+        # Title
+        title_frame = tk.Frame(self.dialog, bg="#2E2E4E")
+        title_frame.pack(pady=15)
+
+        title_label = tk.Label(
+            title_frame,
+            text="Choose Your Floob!",
+            font=("Arial", 24, "bold"),
+            fg="#FFD700",
+            bg="#2E2E4E"
+        )
+        title_label.pack()
+
+        subtitle_label = tk.Label(
+            title_frame,
+            text="Click on a creature to select it (your stats will be kept)",
+            font=("Arial", 12),
+            fg="#AAAAAA",
+            bg="#2E2E4E"
+        )
+        subtitle_label.pack()
+
+        # Grid container
+        grid_frame = tk.Frame(self.dialog, bg="#2E2E4E")
+        grid_frame.pack(pady=10)
+
+        # Create creature grid (5x2 for 10 creatures)
+        creature_list = list(CREATURES.keys())
+        for idx, creature_type in enumerate(creature_list):
+            row = idx // 5
+            col = idx % 5
+
+            cell_frame = tk.Frame(
+                grid_frame,
+                width=self.CELL_SIZE,
+                height=self.CELL_SIZE + 25,
+                bg="#3E3E5E",
+                highlightbackground="#5E5E7E",
+                highlightthickness=2
+            )
+            cell_frame.grid(row=row, column=col, padx=5, pady=5)
+            cell_frame.grid_propagate(False)
+
+            # Canvas for creature preview
+            canvas = tk.Canvas(
+                cell_frame,
+                width=self.CELL_SIZE - 10,
+                height=self.CELL_SIZE - 10,
+                bg="#3E3E5E",
+                highlightthickness=0
+            )
+            canvas.pack(pady=5)
+
+            # Create preview
+            preview = CreaturePreview(
+                canvas,
+                creature_type,
+                center_x=(self.CELL_SIZE - 10) // 2,
+                center_y=(self.CELL_SIZE - 10) // 2 - 10,
+                size=self.PREVIEW_SIZE
+            )
+            self.previews.append((canvas, preview))
+
+            # Creature name label
+            data = CREATURES[creature_type]
+            name_label = tk.Label(
+                cell_frame,
+                text=data["name"],
+                font=("Arial", 10, "bold"),
+                fg="#FFFFFF",
+                bg="#3E3E5E"
+            )
+            name_label.pack()
+
+            # Description label
+            desc_label = tk.Label(
+                cell_frame,
+                text=data["description"],
+                font=("Arial", 8),
+                fg="#AAAAAA",
+                bg="#3E3E5E"
+            )
+            desc_label.pack()
+
+            # Bind click events
+            for widget in [cell_frame, canvas, name_label, desc_label]:
+                widget.bind("<Button-1>", lambda e, ct=creature_type: self._on_creature_click(ct))
+                widget.bind("<Enter>", lambda e, cf=cell_frame: self._on_hover_enter(cf))
+                widget.bind("<Leave>", lambda e, cf=cell_frame: self._on_hover_leave(cf))
+
+        # Button frame
+        button_frame = tk.Frame(self.dialog, bg="#2E2E4E")
+        button_frame.pack(pady=15)
+
+        cancel_btn = tk.Button(
+            button_frame,
+            text="Cancel",
+            font=("Arial", 12),
+            width=12,
+            command=self._handle_cancel
+        )
+        cancel_btn.pack(side=tk.LEFT, padx=10)
+
+        # Handle window close
+        self.dialog.protocol("WM_DELETE_WINDOW", self._handle_cancel)
+
+    def _on_hover_enter(self, cell_frame: tk.Frame) -> None:
+        """Handle mouse entering a cell."""
+        cell_frame.configure(highlightbackground="#FFD700", highlightthickness=3)
+
+    def _on_hover_leave(self, cell_frame: tk.Frame) -> None:
+        """Handle mouse leaving a cell."""
+        cell_frame.configure(highlightbackground="#5E5E7E", highlightthickness=2)
+
+    def _on_creature_click(self, creature_type: str) -> None:
+        """Handle creature selection."""
+        self.selected_creature = creature_type
+        self._stop_animation()
+        self.dialog.grab_release()
+        self.dialog.destroy()
+        self.on_select(creature_type)
+
+    def _handle_cancel(self) -> None:
+        """Handle cancel/close."""
+        self._stop_animation()
+        self.dialog.grab_release()
+        self.dialog.destroy()
+        if self.on_cancel:
+            self.on_cancel()
+
+    def _start_animation(self) -> None:
+        """Start the preview animation loop."""
+        self._animate()
+
+    def _stop_animation(self) -> None:
+        """Stop the animation loop."""
+        if self._animation_id is not None:
+            try:
+                self.dialog.after_cancel(self._animation_id)
+            except tk.TclError:
+                pass
+            self._animation_id = None
+
+    def _animate(self) -> None:
+        """Animate all creature previews."""
+        self.animation_phase += 0.1
+
+        for idx, (canvas, preview) in enumerate(self.previews):
+            canvas.delete("all")
+            # Offset bounce phase for each creature
+            bounce = math.sin(self.animation_phase + idx * 0.3) * 3
+            preview.draw(bounce)
+
+        try:
+            self._animation_id = self.dialog.after(50, self._animate)
+        except tk.TclError:
+            # Window was closed
+            pass
+
+
+def show_selection_dialog(
+    parent: tk.Tk,
+    on_select: Callable[[str], None],
+    on_cancel: Optional[Callable[[], None]] = None
+) -> None:
+    """
+    Show the creature selection dialog as a modal within an existing app.
+
+    Args:
+        parent: Parent Tkinter window.
+        on_select: Callback when a creature is selected.
+        on_cancel: Callback when selection is cancelled.
+    """
+    CreatureSelectionDialog(parent, on_select, on_cancel)
